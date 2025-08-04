@@ -33,7 +33,7 @@ public class TeleopDriveRed extends LinearOpMode {
             arm = -gamepad2.left_stick_y;
             claw = gamepad2.left_stick_x;
             head = gamepad2.right_stick_y;
-            controlMech(arm, claw, head);
+            driveMech(arm, claw, head);
 
             if (gamepad1.x) {
                 mechController.handleMechState(MechState.SUB_POSITION);
@@ -92,7 +92,7 @@ public class TeleopDriveRed extends LinearOpMode {
         robot.LBMotor.setPower(lbm/max);
         robot.RBMotor.setPower(rbm/max);
     }
-    public void controlMech(double arm, double claw, double head) {
+    public void driveMech(double arm, double claw, double head) {
         robot.armR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.armL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
