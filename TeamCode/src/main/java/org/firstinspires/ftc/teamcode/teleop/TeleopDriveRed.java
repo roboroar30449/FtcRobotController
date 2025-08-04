@@ -67,7 +67,7 @@ public class TeleopDriveRed extends LinearOpMode {
                 mechController.handleMechState(MechState.ENDGAME_POSITION);
             }
             if (gamepad2.a) {
-                robot.clawRot.setPosition(mechController.clawRotOffset/mechController.MAX_SERVO_ROTATION); // Set Claw Rotation Position to 0 Deg
+                robot.clawRot.setPosition(mechController.clawRotOffset / mechController.MAX_SERVO_ROTATION); // Set Claw Rotation Position to 0 Deg
             }
             if (gamepad1.b || gamepad2.b) {
                 mechController.toggleClaw();
@@ -78,37 +78,52 @@ public class TeleopDriveRed extends LinearOpMode {
     public void driveRobot(double drive, double strafe, double turn) {
         double theta = Math.atan2(drive, strafe);
         double power = Math.hypot(strafe, drive);
-        double sin = Math.sin(theta - Math.PI/4);
-        double cos = Math.cos(theta - Math.PI/4);
+        double sin = Math.sin(theta - Math.PI / 4);
+        double cos = Math.cos(theta - Math.PI / 4);
         double maxsc = Math.max(Math.abs(sin), Math.abs(cos));
-        double lfm = ((power * cos)/maxsc) + turn;
-        double lbm = ((power * sin)/maxsc) + turn;
-        double rfm = ((power * sin)/maxsc) - turn;
-        double rbm = ((power * cos)/maxsc) - turn;
-        double max = Math.max(Math.abs(lfm),(Math.max(Math.abs(lbm),(Math.max(Math.abs(rfm),(Math.max(Math.abs(rbm),1.0)))))));
+        double lfm = ((power * cos) / maxsc) + turn;
+        double lbm = ((power * sin) / maxsc) + turn;
+        double rfm = ((power * sin) / maxsc) - turn;
+        double rbm = ((power * cos) / maxsc) - turn;
+        double max = Math.max(Math.abs(lfm), (Math.max(Math.abs(lbm), (Math.max(Math.abs(rfm), (Math.max(Math.abs(rbm), 1.0)))))));
 
-        robot.LFMotor.setPower(lfm/max);
-        robot.RFMotor.setPower(rfm/max);
-        robot.LBMotor.setPower(lbm/max);
-        robot.RBMotor.setPower(rbm/max);
+        robot.LFMotor.setPower(lfm / max);
+        robot.RFMotor.setPower(rfm / max);
+        robot.LBMotor.setPower(lbm / max);
+        robot.RBMotor.setPower(rbm / max);
     }
     public void driveMech(double arm, double claw, double head) {
         robot.armR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.armL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        if (mechController.ArmState() < -1 || mechController.ArmState()>880){ // Min Limit & Max Limit
+        if (mechController.ArmState() < (mechController.armMinLimit)) { // Arm Min Limit
             robot.armR.setPower(0);
             robot.armL.setPower(0);
+            double armTicks = mechController.CalculateArmTicks(MechController.armMinLimit);
+            for (DcMotor arms : new DcMotor[]{robot.armL, robot.armR}) {
+                arms.setPower(mechController.motorPower);
+                arms.setTargetPosition((int) armTicks);
+                arms.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+        } else if (mechController.ArmState() > (mechController.armMaxLimit)) { // Arm Max Limit
+            robot.armR.setPower(0);
+            robot.armL.setPower(0);
+            double armTicks = mechController.CalculateArmTicks(MechController.armMaxLimit);
+            for (DcMotor arms : new DcMotor[]{robot.armL, robot.armR}) {
+                arms.setPower(mechController.motorPower);
+                arms.setTargetPosition((int) armTicks);
+                arms.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
         } else {
             robot.armR.setPower(arm);
             robot.armL.setPower(arm);
         }
         double clawPos = (claw + 1.0) / 2.0; // -1.0 to 1.0 -> 0.0 to 1.0
-        clawPos = Math.max(((mechController.clawRotOffset-90)/mechController.MAX_SERVO_ROTATION), Math.min(((mechController.clawRotOffset+90)/mechController.MAX_SERVO_ROTATION), clawPos)); // Set min and max as -90 to 90 deg
+        clawPos = Math.max(((mechController.clawRotOffset - mechController.clawRotLimit) / mechController.MAX_SERVO_ROTATION), Math.min(((mechController.clawRotOffset + mechController.clawRotLimit) / mechController.MAX_SERVO_ROTATION), clawPos)); // Set min and max as -90 to 90 deg
         robot.clawRot.setPosition(clawPos);
 
         double headPos = (head + 1.0) / 2.0; // -1.0 to 1.0 -> 0.0 to 1.0
-        headPos = Math.max((mechController.headRotOffset/mechController.MAX_SERVO_ROTATION), Math.min(((mechController.headRotOffset+115/mechController.MAX_SERVO_ROTATION)), headPos)); // Set min and max as 0 to 115 deg
+        headPos = Math.max(((mechController.headRotOffset + mechController.headMinLimit) / mechController.MAX_SERVO_ROTATION), Math.min(((mechController.headRotOffset + mechController.headMaxLimit) / mechController.MAX_SERVO_ROTATION), headPos)); // Set min and max as 0 to 115 deg
         robot.headRot.setPosition(headPos);
-        }
     }
+}

@@ -7,16 +7,28 @@ public class MechController {
     private final Telemetry telemetry;
 
     MechState currentState;
-    private double motorPower = 0.1;
+    //Hardware constants
+    public double motorPower = 0.1;
     public static final double MAX_SERVO_ROTATION = 300.0;//Deg
     public static final double ARM_TICKS_PER_FULL_ROTATION = 537.7;//Encoder Resolution PPR for RPM 312
     public static final double PIVOT_TICKS_PER_FULL_ROTATION = 1425.1;//Encoder Resolution PPR for RPM 117
     public static final double DISTANCE_PER_ROTATION = 120.0;//Pitch * Tooth
     public static final double PIVOT_GEAR_RATIO = 4.0;//Pivot Gear Ratio
+    //Limit constants
+    public static final double armMinLimit = 0; // Arm Min Limit
+    public static final double armMaxLimit = 980; // Arm Max Limit
+    public static final double pivotMinLimit = 0; // Pivot Min Limit
+    public static final double pivotMaxLimit = 100; // Pivot Max Limit
+    public static final double clawOCMinLimit = 0; // ClawOC Min Limit
+    public static final double clawOCMaxLimit = 60; // ClawOC Max Limit
+    public static final double clawRotLimit = 90; // Claw Rot Limit
+    public static final double headMinLimit = 0; // Head Min Limit
+    public static final double headMaxLimit = 115; // Head Max Limit
 
-    public final double clawOffset = 30;//Deg
-    public final double clawRotOffset = 150;//Deg
-    public final double headRotOffset = 30;//Deg
+    //Offset constants
+    public static final double clawOffset = 30;//Deg
+    public static final double clawRotOffset = 150;//Deg
+    public static final double headRotOffset = 30;//Deg
 
     public MechController(RobotHardware RoboRoar) {
         this.robot = RoboRoar;
@@ -29,7 +41,7 @@ public class MechController {
     private double CalculatePivotTicks(double degrees) {
         return (PIVOT_TICKS_PER_FULL_ROTATION / 360.0) * degrees;
     }
-    private double CalculateArmTicks(double travelDistance) {
+    public double CalculateArmTicks(double travelDistance) {
         double numOfRotations = travelDistance / DISTANCE_PER_ROTATION;
         return numOfRotations * ARM_TICKS_PER_FULL_ROTATION;
     }
@@ -139,9 +151,9 @@ public class MechController {
     }
     public void allTelemetry(){
         String clawStatus;
-        if (ClawOCState() > 55) {
+        if (ClawOCState() > clawOCMaxLimit - 2) {
             clawStatus = "Close";
-        } else if (ClawOCState() < 5) {
+        } else if (ClawOCState() < clawOCMinLimit + 2) {
             clawStatus = "Open";
         } else {
             clawStatus = "Moving";
@@ -154,10 +166,10 @@ public class MechController {
         telemetry.update();
     }
     public void toggleClaw() {
-        if (ClawOCState() > 30){
-            robot.clawOC.setPosition(CalculateServoPosition(0, clawOffset));
+        if (ClawOCState() > (clawOCMaxLimit-clawOCMinLimit)/2){
+            robot.clawOC.setPosition(CalculateServoPosition(clawOCMinLimit, clawOffset));
         } else {
-            robot.clawOC.setPosition(CalculateServoPosition(60, clawOffset));
+            robot.clawOC.setPosition(CalculateServoPosition(clawOCMaxLimit, clawOffset));
         }
     }
 }
