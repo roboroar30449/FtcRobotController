@@ -149,7 +149,8 @@ public class MechController {
         telemetry.addData("State", currentState + " | Busy: " + isBusy());
         telemetry.addData("Position X", Math.round(robot.pinpoint.getPosX()) + " | Position Y: " + Math.round(robot.pinpoint.getPosY()) + " | Heading: " + Math.round(robot.pinpoint.getHeading()));
         telemetry.addData("Claw", clawStatus + " | Claw Pos: " + Math.round(ClawRotState()) + " | Head Pos: " + Math.round(HeadRotState()));
-        telemetry.addData("Arm Pos in mm", Math.round(ArmState()) + " | Pivot Pos: " + Math.round(PivotState()/4));
+        telemetry.addData("Arm Pos in mm", Math.round(ArmState()) + " | Pivot Pos: " + Math.round(PivotState()/PIVOT_GEAR_RATIO));
+        robot.pinpoint.update();
         telemetry.update();
     }
     public void toggleClaw() {
