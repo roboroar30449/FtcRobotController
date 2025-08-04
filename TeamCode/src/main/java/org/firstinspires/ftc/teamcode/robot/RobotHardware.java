@@ -41,10 +41,10 @@ public class RobotHardware {
         initMotorModes();
     }
     private void setMotorDirections() {
-        LFMotor.setDirection(DcMotor.Direction.FORWARD);
-        LBMotor.setDirection(DcMotor.Direction.FORWARD);
-        RFMotor.setDirection(DcMotor.Direction.REVERSE);
-        RBMotor.setDirection(DcMotor.Direction.REVERSE);
+        LFMotor.setDirection(DcMotor.Direction.REVERSE);
+        LBMotor.setDirection(DcMotor.Direction.REVERSE);
+        RFMotor.setDirection(DcMotor.Direction.FORWARD);
+        RBMotor.setDirection(DcMotor.Direction.FORWARD);
         pivotRot.setDirection(DcMotor.Direction.FORWARD);
         armL.setDirection(DcMotor.Direction.REVERSE);
         armR.setDirection(DcMotor.Direction.FORWARD);

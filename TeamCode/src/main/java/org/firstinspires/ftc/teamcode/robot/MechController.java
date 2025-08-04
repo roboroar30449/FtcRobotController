@@ -1,10 +1,6 @@
 package org.firstinspires.ftc.teamcode.robot;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.robot.Robot;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class MechController {
     private final RobotHardware robot;
@@ -16,10 +12,11 @@ public class MechController {
     public static final double ARM_TICKS_PER_FULL_ROTATION = 537.7;//Encoder Resolution PPR for RPM 312
     public static final double PIVOT_TICKS_PER_FULL_ROTATION = 1425.1;//Encoder Resolution PPR for RPM 117
     public static final double DISTANCE_PER_ROTATION = 120.0;//Pitch * Tooth
+    public static final double PIVOT_GEAR_RATIO = 4.0;//Pivot Gear Ratio
 
     public final double clawOffset = 30;//Deg
-    private final double clawRotOffset = 150;//Deg
-    private final double headRotOffset = 30;//Deg
+    public final double clawRotOffset = 150;//Deg
+    public final double headRotOffset = 30;//Deg
 
     public MechController(RobotHardware RoboRoar) {
         this.robot = RoboRoar;
@@ -129,7 +126,7 @@ public class MechController {
         }
     }
     private void movePivotAndArms(double targetDeg, double targetPosition) {
-        double pivotTicks = CalculatePivotTicks(targetDeg);
+        double pivotTicks = CalculatePivotTicks(targetDeg)*PIVOT_GEAR_RATIO;
         robot.pivotRot.setPower(motorPower);
         robot.pivotRot.setTargetPosition((int) pivotTicks);
         robot.pivotRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -141,13 +138,20 @@ public class MechController {
         }
     }
     public void allTelemetry(){
-        telemetry.addData("Current State", currentState + " | Busy: " + isBusy());
+        String clawStatus;
+        if (ClawOCState() > 55) {
+            clawStatus = "Close";
+        } else if (ClawOCState() < 5) {
+            clawStatus = "Open";
+        } else {
+            clawStatus = "Moving";
+        }
+        telemetry.addData("State", currentState + " | Busy: " + isBusy());
         telemetry.addData("Position X", Math.round(robot.pinpoint.getPosX()) + " | Position Y: " + Math.round(robot.pinpoint.getPosY()) + " | Heading: " + Math.round(robot.pinpoint.getHeading()));
-        telemetry.addData("Claw OC", Math.round(ClawOCState()) + " | Claw Position: " + Math.round(ClawRotState()) + " | Head Position: " + Math.round(HeadRotState()));
-        telemetry.addData("Arm Position in mm", Math.round(ArmState()) + " | Pivot Position: " + Math.round(PivotState()));
+        telemetry.addData("Claw", clawStatus + " | Claw Pos: " + Math.round(ClawRotState()) + " | Head Pos: " + Math.round(HeadRotState()));
+        telemetry.addData("Arm Pos in mm", Math.round(ArmState()) + " | Pivot Pos: " + Math.round(PivotState()/4));
         telemetry.update();
     }
-
     public void toggleClaw() {
         if (ClawOCState() > 30){
             robot.clawOC.setPosition(CalculateServoPosition(0, clawOffset));
