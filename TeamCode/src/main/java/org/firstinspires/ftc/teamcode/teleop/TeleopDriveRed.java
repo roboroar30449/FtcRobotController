@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.robot.RobotHardware;
 @TeleOp(name = "TeleOp Drive Red", group = "Red OpModes")
 public class TeleopDriveRed extends LinearOpMode {
     public double drive, strafe, turn;
-    public double arm, claw, head;
+    public double arm, claw, head, pivot;
     RobotHardware robot;
     MechController mechController;
 
@@ -33,7 +33,8 @@ public class TeleopDriveRed extends LinearOpMode {
             arm = -gamepad2.left_stick_y;
             claw = gamepad2.left_stick_x;
             head = gamepad2.right_stick_y;
-            driveMech(arm, claw, head);
+            pivot = gamepad2.right_stick_x;
+            driveMech(arm, claw, head, pivot);
 
             if (gamepad1.x) {
                 mechController.handleMechState(MechState.SUB_POSITION);
@@ -67,7 +68,7 @@ public class TeleopDriveRed extends LinearOpMode {
                 mechController.handleMechState(MechState.ENDGAME_POSITION);
             }
             if (gamepad2.a) {
-                robot.clawRot.setPosition(mechController.clawRotOffset / mechController.MAX_SERVO_ROTATION); // Set Claw Rotation Position to 0 Deg
+                robot.clawRot.setPosition(MechController.clawRotOffset / MechController.MAX_SERVO_ROTATION); // Set Claw Rotation Position to 0 Deg
             }
             if (gamepad1.b || gamepad2.b) {
                 mechController.toggleClaw();
@@ -92,11 +93,12 @@ public class TeleopDriveRed extends LinearOpMode {
         robot.LBMotor.setPower(lbm / max);
         robot.RBMotor.setPower(rbm / max);
     }
-    public void driveMech(double arm, double claw, double head) {
+    public void driveMech(double arm, double claw, double head, double pivot) {
         robot.armR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.armL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        if (mechController.ArmState() < (mechController.armMinLimit)) { // Arm Min Limit
+        // Arm control
+        if (mechController.ArmState() < (MechController.armMinLimit)) { // Arm Min Limit
             robot.armR.setPower(0);
             robot.armL.setPower(0);
             double armTicks = mechController.CalculateArmTicks(MechController.armMinLimit);
@@ -105,7 +107,7 @@ public class TeleopDriveRed extends LinearOpMode {
                 arms.setTargetPosition((int) armTicks);
                 arms.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
-        } else if (mechController.ArmState() > (mechController.armMaxLimit)) { // Arm Max Limit
+        } else if (mechController.ArmState() > (MechController.armMaxLimit)) { // Arm Max Limit
             robot.armR.setPower(0);
             robot.armL.setPower(0);
             double armTicks = mechController.CalculateArmTicks(MechController.armMaxLimit);
@@ -118,12 +120,32 @@ public class TeleopDriveRed extends LinearOpMode {
             robot.armR.setPower(arm);
             robot.armL.setPower(arm);
         }
+
+        // Pivot control
+        if (mechController.PivotState() < (MechController.pivotMinLimit)) { // Pivot Min Limit
+            robot.pivotRot.setPower(0);
+            double pivotTicks = mechController.CalculatePivotTicks(MechController.pivotMinLimit);
+            robot.pivotRot.setPower(mechController.motorPower);
+            robot.pivotRot.setTargetPosition((int) pivotTicks);
+            robot.pivotRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        } else if (mechController.PivotState() > (MechController.pivotMaxLimit)) { // Pivot Max Limit
+            robot.pivotRot.setPower(0);
+            double pivotTicks = mechController.CalculatePivotTicks(MechController.pivotMaxLimit);
+            robot.pivotRot.setPower(mechController.motorPower);
+            robot.pivotRot.setTargetPosition((int) pivotTicks);
+            robot.pivotRot.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        } else {
+            robot.pivotRot.setPower(pivot);
+        }
+
+        // Claw control
         double clawPos = (claw + 1.0) / 2.0; // -1.0 to 1.0 -> 0.0 to 1.0
-        clawPos = Math.max(((mechController.clawRotOffset - mechController.clawRotLimit) / mechController.MAX_SERVO_ROTATION), Math.min(((mechController.clawRotOffset + mechController.clawRotLimit) / mechController.MAX_SERVO_ROTATION), clawPos)); // Set min and max as -90 to 90 deg
+        clawPos = Math.max(((MechController.clawRotOffset - MechController.clawRotLimit) / MechController.MAX_SERVO_ROTATION), Math.min(((MechController.clawRotOffset + MechController.clawRotLimit) / MechController.MAX_SERVO_ROTATION), clawPos)); // Set min and max as -90 to 90 deg
         robot.clawRot.setPosition(clawPos);
 
+        // Head control
         double headPos = (head + 1.0) / 2.0; // -1.0 to 1.0 -> 0.0 to 1.0
-        headPos = Math.max(((mechController.headRotOffset + mechController.headMinLimit) / mechController.MAX_SERVO_ROTATION), Math.min(((mechController.headRotOffset + mechController.headMaxLimit) / mechController.MAX_SERVO_ROTATION), headPos)); // Set min and max as 0 to 115 deg
+        headPos = Math.max(((MechController.headRotOffset + MechController.headMinLimit) / MechController.MAX_SERVO_ROTATION), Math.min(((MechController.headRotOffset + MechController.headMaxLimit) / MechController.MAX_SERVO_ROTATION), headPos)); // Set min and max as 0 to 115 deg
         robot.headRot.setPosition(headPos);
     }
 }

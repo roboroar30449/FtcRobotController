@@ -7,6 +7,7 @@ public class MechController {
     private final Telemetry telemetry;
 
     MechState currentState;
+
     //Hardware constants
     public double motorPower = 0.1;
     public static final double MAX_SERVO_ROTATION = 300.0;//Deg
@@ -14,6 +15,7 @@ public class MechController {
     public static final double PIVOT_TICKS_PER_FULL_ROTATION = 1425.1;//Encoder Resolution PPR for RPM 117
     public static final double DISTANCE_PER_ROTATION = 120.0;//Pitch * Tooth
     public static final double PIVOT_GEAR_RATIO = 4.0;//Pivot Gear Ratio
+
     //Limit constants
     public static final double armMinLimit = 0; // Arm Min Limit
     public static final double armMaxLimit = 980; // Arm Max Limit
@@ -38,7 +40,7 @@ public class MechController {
     public double CalculateServoPosition(double target, double offset) {
         return ((target + offset) / MAX_SERVO_ROTATION);
     }
-    private double CalculatePivotTicks(double degrees) {
+    public double CalculatePivotTicks(double degrees) {
         return (PIVOT_TICKS_PER_FULL_ROTATION / 360.0) * degrees;
     }
     public double CalculateArmTicks(double travelDistance) {
