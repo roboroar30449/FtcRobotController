@@ -9,7 +9,7 @@ public class MechController {
     MechState currentState;
 
     //Hardware constants
-    public double motorPower = 0.1;
+    public double motorPower = 0.25;
     public static final double MAX_SERVO_ROTATION = 300.0;//Deg
     public static final double ARM_TICKS_PER_FULL_ROTATION = 537.7;//Encoder Resolution PPR for RPM 312
     public static final double PIVOT_TICKS_PER_FULL_ROTATION = 1425.1;//Encoder Resolution PPR for RPM 117
@@ -21,16 +21,16 @@ public class MechController {
     public static final double armMaxLimit = 980; // Arm Max Limit
     public static final double pivotMinLimit = 0; // Pivot Min Limit
     public static final double pivotMaxLimit = 100; // Pivot Max Limit
-    public static final double clawOCMinLimit = 0; // ClawOC Min Limit
-    public static final double clawOCMaxLimit = 60; // ClawOC Max Limit
+    public static final double clawOCMinLimit = 0; // ClawOC Min Limit (68.2)
+    public static final double clawOCMaxLimit = 60; // ClawOC Max Limit (135.7)
     public static final double clawRotLimit = 90; // Claw Rot Limit
-    public static final double headMinLimit = 0; // Head Min Limit
-    public static final double headMaxLimit = 115; // Head Max Limit
+    public static final double headMinLimit = 0; // Head Min Limit (37)
+    public static final double headMaxLimit = 115; // Head Max Limit (198)
 
     //Offset constants
-    public static final double clawOffset = 30;//Deg
     public static final double clawRotOffset = 150;//Deg
-    public static final double headRotOffset = 30;//Deg
+    public static final double clawOffset = 69;//Deg
+    public static final double headRotOffset = 37;//Deg
 
     public MechController(RobotHardware RoboRoar) {
         this.robot = RoboRoar;
@@ -74,7 +74,7 @@ public class MechController {
 
             case HIGH_BASKET_POSITION:
                 if (!isBusy()) {
-                    movePivotAndArms(100, 979.2);
+                    movePivotAndArms(10, 90); //979.2
                     setClawAndHead(60, 0, 0);
                     currentState = MechState.HIGH_BASKET_POSITION;
                 }
@@ -82,7 +82,7 @@ public class MechController {
 
             case ENDGAME_POSITION:
                 if (!isBusy()) {
-                    movePivotAndArms(100, 244.8);
+                    movePivotAndArms(10, 244.8);
                     setClawAndHead(0, 90, 0);
                     currentState = MechState.ENDGAME_POSITION;
                 }

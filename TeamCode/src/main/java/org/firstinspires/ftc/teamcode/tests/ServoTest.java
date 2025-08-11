@@ -4,8 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.robot.MechController;
+import org.firstinspires.ftc.teamcode.robot.RobotHardware;
 
-@TeleOp(name = "Servo Motor Test", group = "Testing")
+@TeleOp(name = "Servo Motor Test", group = "Test")
 public class ServoTest extends OpMode {
 
     private Servo clawOC, clawRot, headRot;
@@ -17,11 +18,14 @@ public class ServoTest extends OpMode {
     private static final double MAX_SERVO_ROTATION = 300.0;
     MechController mechController;
 
+    RobotHardware robot;
+
     @Override
     public void init() {
         clawOC = hardwareMap.get(Servo.class, "ClawOC");
         clawRot = hardwareMap.get(Servo.class, "ClawRot");
         headRot = hardwareMap.get(Servo.class, "HeadRot");
+        mechController = new MechController(robot);
     }
 
     @Override
@@ -35,9 +39,9 @@ public class ServoTest extends OpMode {
         if (gamepad1.y) {
             setServoPositions(60, 90, 115);
         }
-        telemetry.addData("Claw OC", mechController.ClawOCState());
-        telemetry.addData("Claw Pos: ", mechController.ClawRotState());
-        telemetry.addData("Head Pos: ", mechController.HeadRotState());
+        telemetry.addData("Claw OC", ((robot.clawOC.getPosition()*MAX_SERVO_ROTATION)));
+        telemetry.addData("Claw Pos: ", ((robot.clawRot.getPosition()*MAX_SERVO_ROTATION)));
+        telemetry.addData("Head Pos: ", (robot.headRot.getPosition()*MAX_SERVO_ROTATION));
         telemetry.update();
     }
     private void setServoPositions(double clawOCPos, double clawRotPos, double headRotPos) {

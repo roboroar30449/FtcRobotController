@@ -16,6 +16,8 @@ import com.pedropathing.pathgen.Point;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
+import com.pedropathing.follower.FollowerConstants;
+
 /**
  * This is the StraightBackAndForth autonomous OpMode. It runs the robot in a specified distance
  * straight forward. On reaching the end of the forward Path, the robot runs the backward Path the
@@ -72,6 +74,18 @@ public class StraightBackAndForth extends OpMode {
     @Override
     public void loop() {
         follower.update();
+        // Debug: Print motor powers
+
+        double lfPower = hardwareMap.dcMotor.get(FollowerConstants.leftFrontMotorName).getPower();
+        double lbPower = hardwareMap.dcMotor.get(FollowerConstants.leftRearMotorName).getPower();
+        double rfPower = hardwareMap.dcMotor.get(FollowerConstants.rightFrontMotorName).getPower();
+        double rbPower = hardwareMap.dcMotor.get(FollowerConstants.rightRearMotorName).getPower();
+
+        telemetryA.addData("LF Power", lfPower);
+        telemetryA.addData("LB Power", lbPower);
+        telemetryA.addData("RF Power", rfPower);
+        telemetryA.addData("RB Power", rbPower);
+
         if (!follower.isBusy()) {
             if (forward) {
                 forward = false;

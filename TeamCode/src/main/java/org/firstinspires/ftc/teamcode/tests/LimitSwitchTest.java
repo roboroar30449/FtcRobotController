@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 
-@TeleOp(name = "Limit Switch Test", group = "Testing")
+@TeleOp(name = "Limit Switch Test", group = "Test")
 public class LimitSwitchTest extends OpMode {
 
     public AnalogInput limitSwitch0;

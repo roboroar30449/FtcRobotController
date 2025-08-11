@@ -1,0 +1,186 @@
+package org.firstinspires.ftc.teamcode.vision;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvPipeline;
+
+import org.opencv.calib3d.Calib3d;
+import org.opencv.core.*;
+import org.opencv.imgproc.Imgproc;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@TeleOp(name="Blue Block Detection", group = "Vision")
+public class BlockDetection extends LinearOpMode {
+
+    OpenCvCamera webcam;
+    EdgePnPPipeline pipeline;
+
+    @Override
+    public void runOpMode() {
+        int cameraMonitorViewId = hardwareMap.appContext.getResources()
+                .getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(
+                hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+
+        pipeline = new EdgePnPPipeline();
+        webcam.setPipeline(pipeline);
+
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+            }
+
+            @Override
+            public void onError(int errorCode) {
+                telemetry.addData("Camera open error", errorCode);
+                telemetry.update();
+            }
+        });
+
+        // Detect and show object in INIT loop
+        while (!isStarted() && !isStopRequested()) {
+            telemetry.addData("ΔX (in)", pipeline.deltaX);
+            telemetry.addData("ΔY (in)", pipeline.deltaY);
+            telemetry.addData("Heading (deg)", pipeline.headingDeg);
+            telemetry.update();
+            sleep(50);
+        }
+
+        waitForStart();
+
+        while (opModeIsActive()) {
+            telemetry.addData("ΔX (in)", pipeline.deltaX);
+            telemetry.addData("ΔY (in)", pipeline.deltaY);
+            telemetry.addData("Heading (deg)", pipeline.headingDeg);
+            telemetry.update();
+        }
+    }
+
+    static class EdgePnPPipeline extends OpenCvPipeline {
+        Mat cameraMatrix;
+        MatOfDouble distCoeffs;
+
+        // Public outputs
+        public double deltaX = 0;
+        public double deltaY = 0;
+        public double headingDeg = 0;
+
+        // HSV blue color range for detection
+        private final Scalar lowerBlue = new Scalar(90, 100, 100);
+        private final Scalar upperBlue = new Scalar(130, 255, 255);
+
+        private Point objectCenter = null;
+        private Point[] contourPoints = null;
+
+        public EdgePnPPipeline() {
+            // Camera Matrix
+            cameraMatrix = new Mat(3, 3, CvType.CV_64F);
+            double[] camData = {
+                    242.38165191, 0, 314.83509711,
+                    0, 242.45074231, 223.11661867,
+                    0, 0, 1
+            };
+            cameraMatrix.put(0, 0, camData);
+
+            // Distortion Coefficients
+            distCoeffs = new MatOfDouble(-0.0132293, -0.01237019, -0.00077488, -0.00088637, -0.0010935);
+        }
+
+        @Override
+        public Mat processFrame(Mat input) {
+            // Convert input to HSV color space to detect blue
+            Mat hsv = new Mat();
+            Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
+
+            Mat mask = new Mat();
+            Core.inRange(hsv, lowerBlue, upperBlue, mask);
+
+            // Morphology to reduce noise
+            Imgproc.erode(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3,3)));
+            Imgproc.dilate(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5)));
+
+            // Find contours on mask
+            List<MatOfPoint> contours = new ArrayList<>();
+            Imgproc.findContours(mask, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+            if (!contours.isEmpty()) {
+                // Find largest contour
+                MatOfPoint largest = contours.get(0);
+                double maxArea = Imgproc.contourArea(largest);
+                for (MatOfPoint c : contours) {
+                    double area = Imgproc.contourArea(c);
+                    if (area > maxArea) {
+                        largest = c;
+                        maxArea = area;
+                    }
+                }
+
+                // Approximate contour polygon and bounding box
+                MatOfPoint2f largest2f = new MatOfPoint2f(largest.toArray());
+                RotatedRect box = Imgproc.minAreaRect(largest2f);
+
+                // Store contour points for drawing edges
+                Point[] pts = new Point[4];
+                box.points(pts);
+                contourPoints = pts;
+
+                // Calculate center of detected object
+                objectCenter = new Point(box.center.x, box.center.y);
+
+                // Define real-world object points for PnP (2x2 inch square)
+                MatOfPoint3f objectPoints = new MatOfPoint3f(
+                        new Point3(-1, -1, 0),
+                        new Point3(1, -1, 0),
+                        new Point3(1, 1, 0),
+                        new Point3(-1, 1, 0)
+                );
+
+                // Image points from detected box corners
+                MatOfPoint2f imagePoints = new MatOfPoint2f(pts);
+
+                // Solve PnP for pose estimation
+                Mat rvec = new Mat();
+                Mat tvec = new Mat();
+                boolean success = Calib3d.solvePnP(objectPoints, imagePoints, cameraMatrix, distCoeffs, rvec, tvec);
+
+                if (success) {
+                    deltaX = tvec.get(0,0)[0]; // inches in camera X-axis
+                    deltaY = tvec.get(1,0)[0]; // inches in camera Y-axis
+                    headingDeg = Math.toDegrees(rvec.get(1,0)[0]); // rough yaw angle
+                }
+            } else {
+                objectCenter = null;
+                contourPoints = null;
+                deltaX = 0;
+                deltaY = 0;
+                headingDeg = 0;
+            }
+
+            // Draw detected contour edges in green
+            if (contourPoints != null) {
+                for (int i = 0; i < 4; i++) {
+                    Imgproc.line(input, contourPoints[i], contourPoints[(i+1) % 4], new Scalar(0,255,0), 3);
+                }
+            }
+
+            // Draw green dot at detected object center
+            if (objectCenter != null) {
+                Imgproc.circle(input, objectCenter, 7, new Scalar(0,255,0), -1);
+            }
+
+            // Draw green dot at center of the camera frame
+            Imgproc.circle(input, new Point(cameraMatrix.get(0, 2)[0], cameraMatrix.get(1, 2)[0]), 7, new Scalar(0,255,0), -1);
+
+            return input;
+        }
+    }
+}
