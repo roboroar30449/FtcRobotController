@@ -6,6 +6,6 @@ public enum MechState {
     HIGH_BASKET_POSITION,      // 4
     SUB_POSITION,              // 5
     ENDGAME_POSITION,          // 6
-    LOW_BASKET_POSITION,       // 7 - STRETCH GOAL
-    SPECIMEN_POSITION          // 8 - STRETCH GOAL
+    CLAW_CLOSE,                // 7
+    CLAW_OPEN                  // 8
 }

@@ -7,13 +7,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.robot.MechController;
 import org.firstinspires.ftc.teamcode.robot.MechState;
 import org.firstinspires.ftc.teamcode.robot.RobotHardware;
-
 @TeleOp(name = "TeleOp Drive Red", group = "Red OpModes")
 public class TeleopDriveRed extends LinearOpMode {
     public double drive, strafe, turn;
     public double arm, claw, head, pivot;
     RobotHardware robot;
     MechController mechController;
+    boolean buttonPressed = false; // To handle button press logic
 
     @Override
     public void runOpMode() {
@@ -31,48 +31,54 @@ public class TeleopDriveRed extends LinearOpMode {
             driveRobot(drive, strafe, turn);
 
             arm = -gamepad2.left_stick_y;
-            claw = gamepad2.left_stick_x;
+            pivot = gamepad2.left_stick_x;
             head = gamepad2.right_stick_y;
-            pivot = gamepad2.right_stick_x;
+            claw = gamepad2.right_stick_x;
             driveMech(arm, claw, head, pivot);
 
-            if (gamepad1.x) {
+            // Check for button presses and handle them
+            if (gamepad1.a && !buttonPressed) {
+                buttonPressed = true;
+                mechController.handleMechState(MechState.IDLE_POSITION);
+                while(mechController.isBusy() && opModeIsActive()) {
+                    mechController.allTelemetry();
+                    idle();
+                }
+            }
+
+            if (gamepad1.x && !buttonPressed) {
+                buttonPressed = true;
                 mechController.handleMechState(MechState.SUB_POSITION);
-                while (mechController.isBusy() && opModeIsActive()) {
-                    mechController.allTelemetry();
-                    idle();
-                }
-                mechController.toggleClaw();
+                waitForStateToFinish();
+                mechController.handleMechState(MechState.CLAW_CLOSE);
+                waitForServoStateToFinish();
                 mechController.handleMechState(MechState.RESET_POSITION);
-                while (mechController.isBusy() && opModeIsActive()) {
-                    mechController.allTelemetry();
-                    idle();
-                }
+                waitForStateToFinish();
             }
 
-            if (gamepad1.y) {
+            if (gamepad1.y && !buttonPressed) {
+                buttonPressed = true;
                 mechController.handleMechState(MechState.HIGH_BASKET_POSITION);
-                while (mechController.isBusy() && opModeIsActive()) {
-                    mechController.allTelemetry();
-                    idle();
-                }
-                mechController.toggleClaw();
+                mechController.openClaw();
                 mechController.handleMechState(MechState.RESET_POSITION);
-                while (mechController.isBusy() && opModeIsActive()) {
-                    mechController.allTelemetry();
-                    idle();
-                }
             }
 
-            if (gamepad1.a) {
+            if (gamepad1.a && !buttonPressed) {
+                buttonPressed = true;
                 mechController.handleMechState(MechState.ENDGAME_POSITION);
             }
-            if (gamepad2.a) {
-                robot.clawRot.setPosition(MechController.clawRotOffset / MechController.MAX_SERVO_ROTATION); // Set Claw Rotation Position to 0 Deg
+
+            if ((gamepad1.right_trigger > 0.2 || gamepad2.right_trigger > 0.2) && !buttonPressed) {
+                buttonPressed = true;
+                mechController.openClaw();
             }
-            if (gamepad1.b || gamepad2.b) {
-                mechController.toggleClaw();
+
+            // Reset button press flag when no button is pressed
+            if (!gamepad1.x && !gamepad1.y && !gamepad1.a && gamepad1.right_trigger <= 0.2 && gamepad2.right_trigger <= 0.2) {
+                buttonPressed = false;
             }
+
+            // Call telemetry once per loop cycle
             mechController.allTelemetry();
         }
     }
@@ -93,6 +99,7 @@ public class TeleopDriveRed extends LinearOpMode {
         robot.LBMotor.setPower(lbm / max);
         robot.RBMotor.setPower(rbm / max);
     }
+
     public void driveMech(double arm, double claw, double head, double pivot) {
         robot.armR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.armL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -147,5 +154,17 @@ public class TeleopDriveRed extends LinearOpMode {
         double headPos = (head + 1.0) / 2.0; // -1.0 to 1.0 -> 0.0 to 1.0
         headPos = Math.max(((MechController.headRotOffset + MechController.headMinLimit) / MechController.MAX_SERVO_ROTATION), Math.min(((MechController.headRotOffset + MechController.headMaxLimit) / MechController.MAX_SERVO_ROTATION), headPos)); // Set min and max as 0 to 115 deg
         robot.headRot.setPosition(headPos);
+    }
+    private void waitForStateToFinish() {
+        while (mechController.isBusy() && opModeIsActive()) {
+            mechController.allTelemetry();
+            idle();
+        }
+    }
+    private void waitForServoStateToFinish() {
+        while (mechController.isServoBusy() && opModeIsActive()) {
+            mechController.allTelemetry();
+            idle();
+        }
     }
 }
