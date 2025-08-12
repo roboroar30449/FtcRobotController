@@ -2,13 +2,14 @@ package org.firstinspires.ftc.teamcode.robot;
 
 import com.pedropathing.localization.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
 
 public class RobotHardware {
 
@@ -19,6 +20,7 @@ public class RobotHardware {
     public IMU imu;
 
     public Telemetry telemetry;
+    public OpenCvCamera webcamClaw;
     public RobotHardware(HardwareMap hwMap, Telemetry telemetry) {
         this.telemetry = telemetry;
 
@@ -37,6 +39,11 @@ public class RobotHardware {
 
         pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint"); //I2CBus1
         imu = hwMap.get(IMU.class, "imu"); //I2CBus0
+
+        int cameraMonitorViewId = hwMap.appContext.getResources()
+                .getIdentifier("cameraMonitorViewId", "id", hwMap.appContext.getPackageName());
+        webcamClaw = OpenCvCameraFactory.getInstance()
+                .createWebcam(hwMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
         setMotorDirections();
         initMotorModes();
