@@ -52,6 +52,7 @@ public class TeleopDriveRed extends LinearOpMode {
                 waitForStateToFinish();
                 mechController.handleMechState(MechState.CLAW_CLOSE);
                 waitForServoStateToFinish();
+                sleep(100);
                 mechController.handleMechState(MechState.RESET_POSITION);
                 waitForStateToFinish();
             }

@@ -77,74 +77,59 @@ public class MechController {
     public void handleMechState(MechState state) {
         switch (state) {
             case IDLE_POSITION:
-                if (!isBusy()) {
-                    movePivotAndArms(0, 0);
-                    setClawAndHead(0, headMaxLimit-55);
-                    closeClaw();
-                    currentState = MechState.IDLE_POSITION;
-                }
+                movePivotAndArms(0, 0);
+                setClawAndHead(0, headMaxLimit - 55);
+                closeClaw();
+                currentState = MechState.IDLE_POSITION;
                 break;
 
             case HIGH_BASKET_POSITION:
-                if (!isBusy()) {
-                    movePivotAndArms(5, 90); //979.2
-                    setClawAndHead(0, 0);
-                    closeClaw();
-                    currentState = MechState.HIGH_BASKET_POSITION;
-                }
+                movePivotAndArms(5, 90);
+                setClawAndHead(0, 0);
+                closeClaw();
+                currentState = MechState.HIGH_BASKET_POSITION;
                 break;
 
             case ENDGAME_POSITION:
-                if (!isBusy()) {
-                    movePivotAndArms(5, 244.8);
-                    setClawAndHead(90, 0);
-                    openClaw();
-                    currentState = MechState.ENDGAME_POSITION;
-                }
+                movePivotAndArms(5, 244.8);
+                setClawAndHead(90, 0);
+                openClaw();
+                currentState = MechState.ENDGAME_POSITION;
                 break;
 
             case RESET_POSITION:
-                if (!isBusy()) {
-                    movePivotAndArms(0, 0);
-                    setClawAndHead(0, headMaxLimit-35);
-                    closeClaw();
-                    currentState = MechState.RESET_POSITION;
-                }
+                movePivotAndArms(0, 0);
+                setClawAndHead(0, headMaxLimit - 35);
+                closeClaw();
+                currentState = MechState.RESET_POSITION;
                 break;
 
             case SUB_POSITION:
-                if (!isBusy()) {
-                    movePivotAndArms(0, 100);
-                    setClawAndHead(0, headMaxLimit);
-                    openClaw();
-                    currentState = MechState.SUB_POSITION;
-                }
+                movePivotAndArms(0, 100);
+                setClawAndHead(0, headMaxLimit);
+                openClaw();
+                currentState = MechState.SUB_POSITION;
                 break;
 
             case COLLECTING_PS_POSITION:
-                if (!isBusy()) {
-                    movePivotAndArms(0, 0);
-                    setClawAndHead(0, headMaxLimit);// 115
-                    openClaw();
-                    currentState = MechState.COLLECTING_PS_POSITION;
-                }
+                movePivotAndArms(0, 0);
+                setClawAndHead(0, headMaxLimit);
+                openClaw();
+                currentState = MechState.COLLECTING_PS_POSITION;
                 break;
 
             case CLAW_CLOSE:
-                if (!isBusy()) {
-                    closeClaw();
-                    currentState = MechState.CLAW_CLOSE;
-                }
+                closeClaw();
+                currentState = MechState.CLAW_CLOSE;
                 break;
 
             case CLAW_OPEN:
-                if (!isBusy()) {
-                    openClaw();
-                    currentState = MechState.CLAW_OPEN;
-                }
+                openClaw();
+                currentState = MechState.CLAW_OPEN;
                 break;
         }
     }
+
 
     private void setClawAndHead(double clawRot, double headRot) {
         robot.clawRot.setPosition(CalculateServoPosition(clawRot, clawRotOffset));
@@ -186,11 +171,10 @@ public class MechController {
         } else {
             clawStatus = "Open";
         }
-        telemetry.addData("State", currentState + " | Busy: "+isBusy());
+        telemetry.addData("State", currentState + " | Busy: " + isBusy());
         telemetry.addData("Position X", Math.round(robot.pinpoint.getPosX()) + " | Position Y: " + Math.round(robot.pinpoint.getPosY()) + " | Heading: " + Math.round(robot.pinpoint.getHeading()));
         telemetry.addData("Claw", clawStatus + " | Claw Pos: " + Math.round(ClawRotState()) + " | Head Pos: " + Math.round(HeadRotState()));
         telemetry.addData("Arm Pos in mm", Math.round(ArmState()) + " | Pivot Pos: " + Math.round(PivotState() / PIVOT_GEAR_RATIO));
-        telemetry.addData("Claw", ClawOCState());
         robot.pinpoint.update();
         telemetry.update();
     }
