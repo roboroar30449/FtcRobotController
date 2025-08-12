@@ -16,7 +16,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.robot.MechController;
 import org.firstinspires.ftc.teamcode.robot.MechState;
 import org.firstinspires.ftc.teamcode.robot.RobotHardware;
-import org.firstinspires.ftc.teamcode.vision.BlockDetection_Blue;
 
 @Autonomous(name="Auto Square", group="OpModes")
 public class AutoSquare extends OpMode {
@@ -30,7 +29,6 @@ public class AutoSquare extends OpMode {
     private Follower follower;
     RobotHardware robot;
     MechController mechController;
-    BlockDetection_Blue blockDetection_Blue;
     private Timer pathTimer;
     private int pathState = 0;
     public void buildPaths() {
@@ -94,10 +92,9 @@ public class AutoSquare extends OpMode {
         pathTimer = new Timer();
         Constants.setConstants(FConstants.class, LConstants.class);
         robot = new RobotHardware(hardwareMap, telemetry);
-        blockDetection_Blue = new BlockDetection_Blue(robot, telemetry);
-        mechController = new MechController(robot, blockDetection_Blue);
+        mechController = new MechController(robot);
         mechController.handleMechState(MechState.IDLE_POSITION);
-        mechController.allMechTelemetry();
+        mechController.allTelemetry();
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         buildPaths();

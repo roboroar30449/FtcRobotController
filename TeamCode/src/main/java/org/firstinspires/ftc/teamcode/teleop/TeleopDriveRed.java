@@ -7,24 +7,20 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.robot.MechController;
 import org.firstinspires.ftc.teamcode.robot.MechState;
 import org.firstinspires.ftc.teamcode.robot.RobotHardware;
-import org.firstinspires.ftc.teamcode.vision.BlockDetection_Blue;
-
 @TeleOp(name = "TeleOp Drive Red", group = "Red OpModes")
 public class TeleopDriveRed extends LinearOpMode {
     public double drive, strafe, turn;
     public double arm, claw, head, pivot;
     RobotHardware robot;
     MechController mechController;
-    BlockDetection_Blue blockDetection_Blue;
     boolean buttonPressed = false; // To handle button press logic
 
     @Override
     public void runOpMode() {
         robot = new RobotHardware(hardwareMap, telemetry);
-        blockDetection_Blue = new BlockDetection_Blue(robot, telemetry);
-        mechController = new MechController(robot, blockDetection_Blue);
+        mechController = new MechController(robot);
         mechController.handleMechState(MechState.IDLE_POSITION);
-        mechController.allMechTelemetry();
+        mechController.allTelemetry();
 
         waitForStart();
 
@@ -45,7 +41,7 @@ public class TeleopDriveRed extends LinearOpMode {
                 buttonPressed = true;
                 mechController.handleMechState(MechState.IDLE_POSITION);
                 while(mechController.isBusy() && opModeIsActive()) {
-                    mechController.allMechTelemetry();
+                    mechController.allTelemetry();
                     idle();
                 }
             }
@@ -84,7 +80,7 @@ public class TeleopDriveRed extends LinearOpMode {
             }
 
             // Call telemetry once per loop cycle
-            mechController.allMechTelemetry();
+            mechController.allTelemetry();
         }
     }
     public void driveRobot(double drive, double strafe, double turn) {
@@ -162,13 +158,13 @@ public class TeleopDriveRed extends LinearOpMode {
     }
     private void waitForStateToFinish() {
         while (mechController.isBusy() && opModeIsActive()) {
-            mechController.allMechTelemetry();
+            mechController.allTelemetry();
             idle();
         }
     }
     private void waitForServoStateToFinish() {
         while (mechController.isServoBusy() && opModeIsActive()) {
-            mechController.allMechTelemetry();
+            mechController.allTelemetry();
             idle();
         }
     }

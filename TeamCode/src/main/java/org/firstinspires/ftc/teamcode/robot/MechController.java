@@ -2,14 +2,12 @@ package org.firstinspires.ftc.teamcode.robot;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.vision.BlockDetection_Blue;
 
 public class MechController {
     private final RobotHardware robot;
     private final Telemetry telemetry;
 
     MechState currentState;
-    BlockDetection_Blue blockDetection_Blue;
 
     //Hardware constants
     public double motorPower = 0.25;
@@ -38,10 +36,9 @@ public class MechController {
     //Status
     public static boolean clawOCStatus = false;
 
-    public MechController(RobotHardware RoboRoar, BlockDetection_Blue detector) {
+    public MechController(RobotHardware RoboRoar) {
         this.robot = RoboRoar;
         this.telemetry = RoboRoar.telemetry;
-        this.blockDetection_Blue = detector;
     }
 
     public double CalculateServoPosition(double target, double offset) {
@@ -108,7 +105,7 @@ public class MechController {
                 break;
 
             case SUB_POSITION:
-                movePivotAndArms(0, 400);
+                movePivotAndArms(0, 100);
                 setClawAndHead(0, headMaxLimit);
                 openClaw();
                 currentState = MechState.SUB_POSITION;
@@ -119,26 +116,6 @@ public class MechController {
                 setClawAndHead(0, headMaxLimit);
                 openClaw();
                 currentState = MechState.COLLECTING_PS_POSITION;
-                break;
-
-            case DETECTED_POSITION_BLUE:
-                // blockDetection_Blue.deltaX;
-                // blockDetection_Blue.deltaY;
-                // blockDetection_Blue.headingDeg;
-                movePivotAndArms(0, 400 - blockDetection_Blue.deltaX);
-                setClawAndHead(blockDetection_Blue.headingDeg, headMaxLimit);
-                openClaw();
-                currentState = MechState.DETECTED_POSITION_BLUE;
-                break;
-
-            case DETECTED_POSITION_RED:
-                // blockDetection.deltaX;
-                // blockDetection.deltaY;
-                // blockDetection.headingDeg;
-                // movePivotAndArms(0, 200 + blockDetection.deltaX);
-                // setClawAndHead(blockDetection.headingDeg, headMaxLimit);
-                // openClaw();
-                currentState = MechState.DETECTED_POSITION_RED;
                 break;
 
             case CLAW_CLOSE:
@@ -152,6 +129,7 @@ public class MechController {
                 break;
         }
     }
+
 
     private void setClawAndHead(double clawRot, double headRot) {
         robot.clawRot.setPosition(CalculateServoPosition(clawRot, clawRotOffset));
@@ -167,12 +145,11 @@ public class MechController {
     }
 
     public boolean isServoBusy() {
-        return Math.abs(ClawOCState() - clawOCMaxLimit) > 2;
-    //    if (ClawOCState() < clawOCMaxLimit){
-    //        return true;
-    //    } else {
-    //        return false;
-    //    }
+        if (ClawOCState() < clawOCMaxLimit){
+            return true;
+        } else {
+            return false;
+        }
     }
     private void movePivotAndArms(double targetDeg, double targetPosition) {
         double pivotTicks = CalculatePivotTicks(targetDeg) * PIVOT_GEAR_RATIO;
@@ -187,7 +164,7 @@ public class MechController {
         }
     }
 
-    public void allMechTelemetry() {
+    public void allTelemetry() {
         String clawStatus;
         if (ClawOCState() > (clawOCMaxLimit-2)) {
             clawStatus = "Close";
