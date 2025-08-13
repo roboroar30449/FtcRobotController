@@ -15,7 +15,7 @@ public class TeleopDriveBlue extends LinearOpMode {
     RobotHardware robot;
     MechController mechController;
     BlockDetectionBlue detector = new BlockDetectionBlue();
-    boolean buttonPressed = false; // To handle button press logic
+    boolean buttonPressed = false;
 
     @Override
     public void runOpMode() {
@@ -24,7 +24,7 @@ public class TeleopDriveBlue extends LinearOpMode {
         mechController.handleMechState(MechState.IDLE_POSITION);
         mechController.allTelemetry();
 
-        detector.init(hardwareMap, "Webcam 1");
+        detector.init(hardwareMap, telemetry);
         detector.startStreaming();
         while (!isStarted() && !isStopRequested()) {
             telemetry.addData("ΔX (in)", detector.getDeltaX());
