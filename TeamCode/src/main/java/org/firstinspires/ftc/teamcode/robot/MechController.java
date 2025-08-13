@@ -26,7 +26,7 @@ public class MechController {
     public static final double clawOCMaxLimit = 77; // ClawOC Max Limit (135.7)
     public static final double clawRotLimit = 90; // Claw Rot Limit
     public static final double headMinLimit = 0; // Head Min Limit (37)
-    public static final double headMaxLimit = 130; // Head Max Limit (198)
+    public static final double headMaxLimit = 135; // Head Max Limit (198)
 
     //Offset constants
     public static final double clawOffset = 60;//Deg
@@ -145,7 +145,7 @@ public class MechController {
     }
 
     public boolean isServoBusy() {
-        if (ClawOCState() < clawOCMaxLimit){
+        if (ClawOCState() <= clawOCMaxLimit){
             return true;
         } else {
             return false;
