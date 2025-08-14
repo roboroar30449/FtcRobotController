@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.vision;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -10,7 +9,6 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
-
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 import java.util.ArrayList;
@@ -34,6 +32,7 @@ public class BlockDetectionBlue {
         pipeline = new BlockDetection.EdgePnPPipeline();
         webcam.setPipeline(pipeline);
     }
+
     public void startStreaming() {
         if (webcam != null && !isStreaming) {
             webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
@@ -42,6 +41,7 @@ public class BlockDetectionBlue {
                     webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
                     isStreaming = true;
                 }
+
                 @Override
                 public void onError(int errorCode) {
                     if (telemetry != null) {
@@ -52,6 +52,7 @@ public class BlockDetectionBlue {
             });
         }
     }
+
     public void stopStreaming() {
         if (webcam != null && isStreaming) {
             webcam.stopStreaming();
@@ -59,6 +60,7 @@ public class BlockDetectionBlue {
             isStreaming = false;
         }
     }
+
     public boolean isStreaming() {
         return isStreaming;
     }
@@ -74,6 +76,7 @@ public class BlockDetectionBlue {
     public double getHeadingDeg() {
         return (pipeline != null) ? pipeline.headingDeg : 0;
     }
+
     static class EdgePnPPipeline extends OpenCvPipeline {
         Mat cameraMatrix;
         MatOfDouble distCoeffs;
@@ -114,8 +117,8 @@ public class BlockDetectionBlue {
             Core.inRange(hsv, lowerBlue, upperBlue, mask);
 
             // Morphology to reduce noise
-            Imgproc.erode(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3,3)));
-            Imgproc.dilate(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5)));
+            Imgproc.erode(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3)));
+            Imgproc.dilate(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)));
 
             // Find contours on mask
             List<MatOfPoint> contours = new ArrayList<>();
@@ -145,29 +148,58 @@ public class BlockDetectionBlue {
                 // Calculate center of detected object
                 objectCenter = new Point(box.center.x, box.center.y);
 
-                // Define real-world object points for PnP (2x2 inch square)
+                // Calculate the longest edge of the bounding box
+                double d01 = distance(pts[0], pts[1]);
+                double d12 = distance(pts[1], pts[2]);
+                double d23 = distance(pts[2], pts[3]);
+                double d30 = distance(pts[3], pts[0]);
+
+                Point edgeStart = pts[0], edgeEnd = pts[1];
+                double maxLen = d01;
+
+                if (d12 > maxLen) {
+                    edgeStart = pts[1];
+                    edgeEnd = pts[2];
+                    maxLen = d12;
+                }
+                if (d23 > maxLen) {
+                    edgeStart = pts[2];
+                    edgeEnd = pts[3];
+                    maxLen = d23;
+                }
+                if (d30 > maxLen) {
+                    edgeStart = pts[3];
+                    edgeEnd = pts[0];
+                    maxLen = d30;
+                }
+
+                // Calculate angle of the longest edge with respect to vertical axis (y-axis)
+                double dx = edgeEnd.x - edgeStart.x;
+                double dy = edgeEnd.y - edgeStart.y;
+
+                // Calculate angle relative to vertical axis
+                double angleRad = Math.atan2(dx, dy); // Invert dx, dy to make the angle relative to the vertical axis
+                double angleDeg = Math.toDegrees(angleRad);
+
+                // Directly use this angle as heading
+                headingDeg = angleDeg;
+
+                // Optionally compute pose for position only
                 MatOfPoint3f objectPoints = new MatOfPoint3f(
                         new Point3(-1, -1, 0),
                         new Point3(1, -1, 0),
                         new Point3(1, 1, 0),
                         new Point3(-1, 1, 0)
                 );
-
-                // Image points from detected box corners
                 MatOfPoint2f imagePoints = new MatOfPoint2f(pts);
 
-                // Solve PnP for pose estimation
                 Mat rvec = new Mat();
                 Mat tvec = new Mat();
                 boolean success = Calib3d.solvePnP(objectPoints, imagePoints, cameraMatrix, distCoeffs, rvec, tvec);
 
                 if (success) {
-                    deltaX = tvec.get(0,0)[0];
-                    deltaY = tvec.get(1,0)[0];
-                    Mat R = new Mat();
-                    Calib3d.Rodrigues(rvec, R);
-                    double yaw = Math.atan2(R.get(1,0)[0], R.get(0,0)[0]);
-                    headingDeg = Math.toDegrees(yaw);
+                    deltaX = tvec.get(0, 0)[0];
+                    deltaY = tvec.get(1, 0)[0];
                 }
             } else {
                 objectCenter = null;
@@ -180,19 +212,24 @@ public class BlockDetectionBlue {
             // Draw detected contour edges in green
             if (contourPoints != null) {
                 for (int i = 0; i < 4; i++) {
-                    Imgproc.line(input, contourPoints[i], contourPoints[(i+1) % 4], new Scalar(0,255,0), 3);
+                    Imgproc.line(input, contourPoints[i], contourPoints[(i + 1) % 4], new Scalar(0, 255, 0), 3);
                 }
             }
 
             // Draw green dot at detected object center
             if (objectCenter != null) {
-                Imgproc.circle(input, objectCenter, 7, new Scalar(0,255,0), -1);
+                Imgproc.circle(input, objectCenter, 7, new Scalar(0, 255, 0), -1);
             }
 
             // Draw green dot at center of the camera frame
-            Imgproc.circle(input, new Point(cameraMatrix.get(0, 2)[0], cameraMatrix.get(1, 2)[0]), 7, new Scalar(0,255,0), -1);
+            Imgproc.circle(input, new Point(cameraMatrix.get(0, 2)[0], cameraMatrix.get(1, 2)[0]), 7, new Scalar(0, 255, 0), -1);
 
             return input;
+        }
+
+        // Utility function to compute Euclidean distance
+        private double distance(Point p1, Point p2) {
+            return Math.hypot(p2.x - p1.x, p2.y - p1.y);
         }
     }
 }
