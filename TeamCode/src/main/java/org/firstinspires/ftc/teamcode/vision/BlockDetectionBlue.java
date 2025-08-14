@@ -88,8 +88,8 @@ public class BlockDetectionBlue {
         public double headingDeg = 0;
 
         // HSV blue color range for detection
-        private final Scalar lowerBlue = new Scalar(90, 100, 100);
-        private final Scalar upperBlue = new Scalar(130, 255, 255);
+        private final Scalar lowerBlue = new Scalar(90, 100, 100); // 100, 150, 0
+        private final Scalar upperBlue = new Scalar(130, 255, 255); // 140, 255, 255
 
         private Point objectCenter = null;
         private Point[] contourPoints = null;
@@ -114,6 +114,7 @@ public class BlockDetectionBlue {
             Mat hsv = new Mat();
             Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
+            //Blue Mask
             Mat mask = new Mat();
             Core.inRange(hsv, lowerBlue, upperBlue, mask);
 

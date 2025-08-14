@@ -3,17 +3,19 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-
 import org.firstinspires.ftc.teamcode.robot.MechController;
 import org.firstinspires.ftc.teamcode.robot.MechState;
 import org.firstinspires.ftc.teamcode.robot.RobotHardware;
+import org.firstinspires.ftc.teamcode.vision.BlockDetectionRed;
+
 @TeleOp(name = "TeleOp Drive Red", group = "Red OpModes")
 public class TeleopDriveRed extends LinearOpMode {
     public double drive, strafe, turn;
     public double arm, claw, head, pivot;
     RobotHardware robot;
     MechController mechController;
-    boolean buttonPressed = false; // To handle button press logic
+    BlockDetectionRed detector = new BlockDetectionRed();
+    boolean buttonPressed = false;
 
     @Override
     public void runOpMode() {
@@ -22,6 +24,15 @@ public class TeleopDriveRed extends LinearOpMode {
         mechController.handleMechState(MechState.IDLE_POSITION);
         mechController.allTelemetry();
 
+        detector.init(hardwareMap, telemetry);
+        detector.startStreaming();
+        while (!isStarted() && !isStopRequested()) {
+            telemetry.addData("ΔX (in)", Math.round(detector.getDeltaX()*25.4));
+            telemetry.addData("ΔY (in)", Math.round(detector.getDeltaY()*25.4));
+            telemetry.addData("Heading (deg)", Math.round(detector.getHeadingDeg()));
+            telemetry.update();
+            sleep(50);
+        }
         waitForStart();
 
         while (opModeIsActive()) {
@@ -33,7 +44,7 @@ public class TeleopDriveRed extends LinearOpMode {
             arm = -gamepad2.left_stick_y;
             pivot = gamepad2.left_stick_x;
             head = gamepad2.right_stick_y;
-            claw = gamepad2.right_stick_x;
+            claw = -gamepad2.right_stick_x;
             driveMech(arm, claw, head, pivot);
 
             // Check for button presses and handle them
@@ -81,7 +92,12 @@ public class TeleopDriveRed extends LinearOpMode {
 
             // Call telemetry once per loop cycle
             mechController.allTelemetry();
+            telemetry.addData("ΔX (in)", detector.getDeltaX());
+            telemetry.addData("ΔY (in)", detector.getDeltaY());
+            telemetry.addData("Heading (deg)", detector.getHeadingDeg());
+            telemetry.update();
         }
+        detector.stopStreaming();
     }
     public void driveRobot(double drive, double strafe, double turn) {
         double theta = Math.atan2(drive, strafe);

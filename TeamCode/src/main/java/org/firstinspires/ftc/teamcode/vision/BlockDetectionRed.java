@@ -99,9 +99,11 @@ public class BlockDetectionRed {
         public double deltaY = 0;
         public double headingDeg = 0;
 
-        // HSV blue color range for detection
-        private final Scalar lowerBlue = new Scalar(90, 100, 100);
-        private final Scalar upperBlue = new Scalar(130, 255, 255);
+        // HSV red color range for detection
+        private final Scalar lowerRed1 = new Scalar(0, 50, 50); // 0, 100, 100
+        private final Scalar upperRed1 = new Scalar(10, 255, 255); // 10, 255, 255
+        private final Scalar lowerRed2 = new Scalar(170, 50, 50); // 160, 100, 100
+        private final Scalar upperRed2 = new Scalar(180, 255, 255); // 180, 255, 255
 
         private Point objectCenter = null;
         private Point[] contourPoints = null;
@@ -122,12 +124,17 @@ public class BlockDetectionRed {
 
         @Override
         public Mat processFrame(Mat input) {
-            // Convert input to HSV color space to detect blue
+            // Convert input to HSV color space to detect red
             Mat hsv = new Mat();
             Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
+            // Red Mask
+            Mat mask1 = new Mat();
+            Mat mask2 = new Mat();
+            Core.inRange(hsv, lowerRed1, upperRed1, mask1);
+            Core.inRange(hsv, lowerRed2, upperRed2, mask2);
             Mat mask = new Mat();
-            Core.inRange(hsv, lowerBlue, upperBlue, mask);
+            Core.bitwise_or(mask1, mask2, mask);
 
             // Morphology to reduce noise
             Imgproc.erode(mask, mask, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3)));
