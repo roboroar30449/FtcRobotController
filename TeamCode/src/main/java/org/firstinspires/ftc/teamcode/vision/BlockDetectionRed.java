@@ -1,20 +1,32 @@
 package org.firstinspires.ftc.teamcode.vision;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.opencv.calib3d.Calib3d;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.MatOfPoint3f;
+import org.opencv.core.Point;
+import org.opencv.core.Point3;
+import org.opencv.core.RotatedRect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
-import org.opencv.calib3d.Calib3d;
-import org.opencv.core.*;
-import org.opencv.imgproc.Imgproc;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlockDetectionBlue {
+public class BlockDetectionRed {
 
     OpenCvCamera webcam;
     EdgePnPPipeline pipeline;;

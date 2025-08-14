@@ -27,9 +27,9 @@ public class TeleopDriveBlue extends LinearOpMode {
         detector.init(hardwareMap, telemetry);
         detector.startStreaming();
         while (!isStarted() && !isStopRequested()) {
-            telemetry.addData("ΔX (in)", detector.getDeltaX());
-            telemetry.addData("ΔY (in)", detector.getDeltaY());
-            telemetry.addData("Heading (deg)", detector.getHeadingDeg());
+            telemetry.addData("ΔX (in)", Math.round(detector.getDeltaX()*25.4));
+            telemetry.addData("ΔY (in)", Math.round(detector.getDeltaY()*25.4));
+            telemetry.addData("Heading (deg)", Math.round(detector.getHeadingDeg()));
             telemetry.update();
             sleep(50);
         }
@@ -44,7 +44,7 @@ public class TeleopDriveBlue extends LinearOpMode {
             arm = -gamepad2.left_stick_y;
             pivot = gamepad2.left_stick_x;
             head = gamepad2.right_stick_y;
-            claw = gamepad2.right_stick_x;
+            claw = -gamepad2.right_stick_x;
             driveMech(arm, claw, head, pivot);
 
             // Check for button presses and handle them
