@@ -104,7 +104,7 @@ public class MechController {
                 currentState = MechState.RESET_POSITION;
                 break;
 
-            case SUB_POSITION:
+            case SUB_POSITION: // Update DETECT State also based on SUB_POSITION
                 movePivotAndArms(0, 100);
                 setClawAndHead(0, headMaxLimit);
                 openClaw();
@@ -129,7 +129,12 @@ public class MechController {
                 break;
         }
     }
-
+    // DETECT State relative to SUB_POSITION
+    public void handleMechState(double DeltaY, double HeadingDeg) {
+        movePivotAndArms(0, 100 + DeltaY); // Adding DeltaY()
+        setClawAndHead(0 + HeadingDeg, headMaxLimit); // HeadingDeg()
+        currentState = MechState.DETECT;
+    }
 
     private void setClawAndHead(double clawRot, double headRot) {
         robot.clawRot.setPosition(CalculateServoPosition(clawRot, clawRotOffset));

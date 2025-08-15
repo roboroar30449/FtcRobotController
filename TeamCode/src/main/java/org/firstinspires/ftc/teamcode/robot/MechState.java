@@ -7,5 +7,6 @@ public enum MechState {
     SUB_POSITION,              // 5
     ENDGAME_POSITION,          // 6
     CLAW_CLOSE,                // 7
-    CLAW_OPEN                  // 8
+    CLAW_OPEN,                 // 8
+    DETECT                     // 9
 }

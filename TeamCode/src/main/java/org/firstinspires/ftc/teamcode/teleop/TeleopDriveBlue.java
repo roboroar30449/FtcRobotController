@@ -61,6 +61,8 @@ public class TeleopDriveBlue extends LinearOpMode {
                 buttonPressed = true;
                 mechController.handleMechState(MechState.SUB_POSITION);
                 waitForStateToFinish();
+                mechController.handleMechState((-detector.getDeltaY()*25.4), Math.round(detector.getHeadingDeg()));
+                waitForStateToFinish();
                 mechController.handleMechState(MechState.CLAW_CLOSE);
                 waitForServoStateToFinish();
                 sleep(100);
