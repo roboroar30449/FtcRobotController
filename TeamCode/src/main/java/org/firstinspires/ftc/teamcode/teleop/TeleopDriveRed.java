@@ -28,7 +28,7 @@ public class TeleopDriveRed extends LinearOpMode {
         detector.startStreaming();
         while (!isStarted() && !isStopRequested()) {
             telemetry.addData("ΔX (in)", Math.round(detector.getDeltaX()*25.4));
-            telemetry.addData("ΔY (in)", Math.round(detector.getDeltaY()*25.4));
+            telemetry.addData("ΔY (in)", Math.round(-detector.getDeltaY()*25.4));
             telemetry.addData("Heading (deg)", Math.round(detector.getHeadingDeg()));
             telemetry.update();
             sleep(50);
@@ -92,9 +92,9 @@ public class TeleopDriveRed extends LinearOpMode {
 
             // Call telemetry once per loop cycle
             mechController.allTelemetry();
-            telemetry.addData("ΔX (in)", detector.getDeltaX());
-            telemetry.addData("ΔY (in)", detector.getDeltaY());
-            telemetry.addData("Heading (deg)", detector.getHeadingDeg());
+            telemetry.addData("ΔX (in)", Math.round(detector.getDeltaX()*25.4));
+            telemetry.addData("ΔY (in)", Math.round(-detector.getDeltaY()*25.4));
+            telemetry.addData("Heading (deg)", Math.round(detector.getHeadingDeg()));
             telemetry.update();
         }
         detector.stopStreaming();
