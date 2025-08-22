@@ -10,7 +10,7 @@ public class MechController {
     MechState currentState;
 
     //Hardware constants
-    public double motorPower = 0.25;
+    public double motorPower = 0.7;
     public static final double MAX_SERVO_ROTATION = 300.0;//Deg
     public static final double ARM_TICKS_PER_FULL_ROTATION = 537.7;//Encoder Resolution PPR for RPM 312
     public static final double PIVOT_TICKS_PER_FULL_ROTATION = 1425.1;//Encoder Resolution PPR for RPM 117
@@ -26,7 +26,7 @@ public class MechController {
     public static final double clawOCMaxLimit = 77; // ClawOC Max Limit (135.7)
     public static final double clawRotLimit = 90; // Claw Rot Limit
     public static final double headMinLimit = 0; // Head Min Limit (37)
-    public static final double headMaxLimit = 135; // Head Max Limit (198)
+    public static final double headMaxLimit = 145; // Head Max Limit (198)
 
     //Offset constants
     public static final double clawOffset = 60;//Deg
@@ -78,7 +78,7 @@ public class MechController {
         switch (state) {
             case IDLE_POSITION:
                 movePivotAndArms(0, 0);
-                setClawAndHead(0, headMaxLimit - 55);
+                setClawAndHead(0, headMaxLimit - 65);
                 closeClaw();
                 currentState = MechState.IDLE_POSITION;
                 break;
@@ -99,14 +99,14 @@ public class MechController {
 
             case RESET_POSITION:
                 movePivotAndArms(0, 0);
-                setClawAndHead(0, headMaxLimit - 35);
+                setClawAndHead(0, headMaxLimit - 55);
                 closeClaw();
                 currentState = MechState.RESET_POSITION;
                 break;
 
             case SUB_POSITION: // Update DETECT State also based on SUB_POSITION
-                movePivotAndArms(0, 100);
-                setClawAndHead(0, headMaxLimit);
+                movePivotAndArms(0, 400);
+                setClawAndHead(0, headMaxLimit - 45); //35
                 openClaw();
                 currentState = MechState.SUB_POSITION;
                 break;
@@ -130,9 +130,9 @@ public class MechController {
         }
     }
     // DETECT State relative to SUB_POSITION
-    public void handleMechState(double DeltaY, double HeadingDeg) {
-        movePivotAndArms(0, 100 + DeltaY); // Adding DeltaY()
-        setClawAndHead(0 + HeadingDeg, headMaxLimit); // HeadingDeg()
+    public void handleMechState(double DeltaY, double HeadingDeg, double headDiff) {
+        movePivotAndArms(0, 400 - 210 + DeltaY); // Adding DeltaY()
+        setClawAndHead(0 + HeadingDeg, headMaxLimit + headDiff); // HeadingDeg()
         currentState = MechState.DETECT;
     }
 
