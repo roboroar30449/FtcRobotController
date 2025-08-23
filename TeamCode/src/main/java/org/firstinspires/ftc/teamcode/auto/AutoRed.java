@@ -88,14 +88,14 @@ public class AutoRed extends OpMode {
         switch (pathState) {
             case 0: // Move from start to scoring position
                 follower.followPath(scorePreload);
-                mechController.handleMechState(MechState.HIGH_BASKET_POSITION);
+                //mechController.handleMechState(MechState.HIGH_BASKET_POSITION);
                 setPathState(1);
                 break;
 
             case 1: // Wait until the robot is near the scoring position
                 if (!follower.isBusy()) {
                     follower.followPath(grabPickup1, true);
-                    mechController.handleMechState(MechState.COLLECTING_PS_POSITION);
+                    //mechController.handleMechState(MechState.COLLECTING_PS_POSITION);
                     setPathState(2);
                 }
                 break;
@@ -103,7 +103,7 @@ public class AutoRed extends OpMode {
             case 2: // Wait until the robot is near the first sample pickup position
                 if (!follower.isBusy()) {
                     follower.followPath(scorePickup1, true);
-                    mechController.handleMechState(MechState.HIGH_BASKET_POSITION);
+                    //mechController.handleMechState(MechState.HIGH_BASKET_POSITION);
                     setPathState(3);
                 }
                 break;
@@ -111,7 +111,7 @@ public class AutoRed extends OpMode {
             case 3: // Wait until the robot returns to the scoring position
                 if (!follower.isBusy()) {
                     follower.followPath(grabPickup2, true);
-                    mechController.handleMechState(MechState.COLLECTING_PS_POSITION);
+                    //mechController.handleMechState(MechState.COLLECTING_PS_POSITION);
                     setPathState(4);
                 }
                 break;
@@ -119,7 +119,7 @@ public class AutoRed extends OpMode {
             case 4: // Wait until the robot is near the second sample pickup position
                 if (!follower.isBusy()) {
                     follower.followPath(scorePickup2, true);
-                    mechController.handleMechState(MechState.HIGH_BASKET_POSITION);
+                    //mechController.handleMechState(MechState.HIGH_BASKET_POSITION);
                     setPathState(5);
                 }
                 break;
@@ -127,7 +127,7 @@ public class AutoRed extends OpMode {
             case 5: // Wait until the robot returns to the scoring position
                 if (!follower.isBusy()) {
                     follower.followPath(grabPickup3, true);
-                    mechController.handleMechState(MechState.COLLECTING_PS_POSITION);
+                    //mechController.handleMechState(MechState.COLLECTING_PS_POSITION);
                     setPathState(6);
                 }
                 break;
@@ -135,7 +135,7 @@ public class AutoRed extends OpMode {
             case 6: // Wait until the robot is near the third sample pickup position
                 if (!follower.isBusy()) {
                     follower.followPath(scorePickup3, true);
-                    mechController.handleMechState(MechState.HIGH_BASKET_POSITION);
+                    //mechController.handleMechState(MechState.HIGH_BASKET_POSITION);
                     setPathState(7);
                 }
                 break;
@@ -143,7 +143,7 @@ public class AutoRed extends OpMode {
             case 7: // Wait until the robot returns to the scoring position
                 if (!follower.isBusy()) {
                     follower.followPath(grabSubPickup, true);
-                    mechController.handleMechState(MechState.SUB_POSITION);
+                    //mechController.handleMechState(MechState.SUB_POSITION);
                     setPathState(8);
                 }
                 break;
@@ -151,7 +151,7 @@ public class AutoRed extends OpMode {
             case 8: // Wait until the robot is near the sub sample pickup position
                 if (!follower.isBusy()) {
                     follower.followPath(scoreSubPickup, true);
-                    mechController.handleMechState(MechState.HIGH_BASKET_POSITION);
+                    //mechController.handleMechState(MechState.HIGH_BASKET_POSITION);
                     setPathState(9);
                 }
                 break;
@@ -159,7 +159,7 @@ public class AutoRed extends OpMode {
             case 9: // Wait until the robot returns to the scoring position
                 if (!follower.isBusy()) {
                     follower.followPath(park, true);
-                    mechController.handleMechState(MechState.ENDGAME_POSITION);
+                    //mechController.handleMechState(MechState.ENDGAME_POSITION);
                     setPathState(10);
                 }
                 break;
