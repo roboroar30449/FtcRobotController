@@ -142,19 +142,11 @@ public class MechController {
     }
 
     public boolean isBusy() {
-        if (robot.armL.isBusy() || robot.armR.isBusy() || robot.pivotRot.isBusy()){
-            return true;
-        } else {
-            return false;
-        }
+        return robot.armL.isBusy() || robot.armR.isBusy() || robot.pivotRot.isBusy();
     }
 
     public boolean isServoBusy() {
-        if (ClawOCState() <= clawOCMaxLimit){
-            return true;
-        } else {
-            return false;
-        }
+        return ClawOCState() <= clawOCMaxLimit;
     }
     private void movePivotAndArms(double targetDeg, double targetPosition) {
         double pivotTicks = CalculatePivotTicks(targetDeg) * PIVOT_GEAR_RATIO;

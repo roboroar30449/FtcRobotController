@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.robot.MechController;
 import org.firstinspires.ftc.teamcode.robot.MechState;
 import org.firstinspires.ftc.teamcode.robot.RobotHardware;
 
-@Autonomous(name="Auto Square", group="OpModes")
+@Autonomous(name="Auto Square", group="Auto")
 public class AutoSquare extends OpMode {
     private final Pose startPose = new Pose(120, 24, Math.toRadians(0));  // Starting position
     private final Pose stop1 = new Pose(96, 24, Math.toRadians(0)); // Scoring position

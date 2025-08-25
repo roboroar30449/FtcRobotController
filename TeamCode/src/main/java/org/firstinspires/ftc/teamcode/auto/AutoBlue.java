@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.robot.RobotHardware;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
-@Autonomous(name="Auto Drive Blue", group="Blue OpModes")
+@Autonomous(name="Auto Drive Blue", group="Auto")
 public class AutoBlue extends OpMode {
     private final Pose startPose = new Pose(8, 80, Math.toRadians(0));  // Starting position
     private final Pose highBasketPose = new Pose(20, 120, Math.toRadians(-45)); // Scoring position

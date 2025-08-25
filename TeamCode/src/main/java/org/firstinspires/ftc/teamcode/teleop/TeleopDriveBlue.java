@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.robot.MechState;
 import org.firstinspires.ftc.teamcode.robot.RobotHardware;
 import org.firstinspires.ftc.teamcode.vision.BlockDetectionBlue;
 
-@TeleOp(name = "TeleOp Drive Blue", group = "Blue OpModes")
+@TeleOp(name = "TeleOp Drive Blue", group = "Teleop")
 public class TeleopDriveBlue extends LinearOpMode {
     public double drive, strafe, turn;
     public double arm, claw, head, pivot;

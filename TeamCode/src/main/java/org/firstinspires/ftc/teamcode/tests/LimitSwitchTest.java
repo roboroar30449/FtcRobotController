@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 
 @TeleOp(name = "Limit Switch Test", group = "Test")
+@Disabled
 public class LimitSwitchTest extends OpMode {
 
     public AnalogInput limitSwitch0;

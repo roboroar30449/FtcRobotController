@@ -50,7 +50,7 @@ import java.util.List;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
-@TeleOp(name = "Concept: AprilTag Switchable Cameras", group = "Concept")
+@TeleOp(name = "Concept: AprilTag Switchable Cameras", group = "Vision")
 public class AprilTagSwitchableCameras extends LinearOpMode {
 
     /*
@@ -115,7 +115,12 @@ public class AprilTagSwitchableCameras extends LinearOpMode {
     private void initAprilTag() {
 
         // Create the AprilTag processor by using a builder.
-        aprilTag = new AprilTagProcessor.Builder().build();
+        aprilTag = new AprilTagProcessor.Builder()
+                .setDrawAxes(true)
+                .setDrawCubeProjection(true)
+                .setDrawTagID(true)
+                .setDrawTagOutline(true)
+                .build();
 
         webcam1 = hardwareMap.get(WebcamName.class, "Webcam 2");
         webcam2 = hardwareMap.get(WebcamName.class, "Webcam 1");
